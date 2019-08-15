@@ -26,6 +26,10 @@ jobs:
           command: staticcheck -unused.whole-program ./...
 
       - run:
+          name: Tests
+          command: go test ./...
+
+      - run:
           name: Build
           command: go build -o $GOPATH/bin/armador
 
