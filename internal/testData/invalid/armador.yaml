@@ -1,0 +1,5 @@
+dependencies:
+  name: dep-chart
+  repo: test-stable
+  version: 3.5.4
+overrideValueFiles invalid

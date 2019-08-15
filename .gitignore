@@ -1,0 +1,19 @@
+# Binaries for programs and plugins
+armador
+!internal/armador
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+# test files
+internal/testData/extracted/*
+
+.vscode/
+.idea/
+
+telepresence.log
