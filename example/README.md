@@ -20,9 +20,8 @@ This diagram is an annotated version from the original app. https://github.com/d
 
 ### Running example
 
-To run this example, modify (global-config.yaml) with valid cluster details. Then, in this example folder, run:
+To run this example:
 
-```bash
-armador create ex-vote --config global-config.yaml -p example-app-charts/vote
-```
-
+* modify `global-config.yaml` with valid cluster details
+* `cd example/`
+* `armador create ex-vote --config global-config.yaml -p example-app-charts/vote`
