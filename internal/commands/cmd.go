@@ -82,7 +82,7 @@ func (c Cmd) ExecInDirUnparsed(name, dir string, commands ...string) (string, er
 	// Context is expected to have a timeout. Either the command finishes, or the ctx times out
 	select {
 	case err := <-done:
-		outStr, errStr := string(stdout.Bytes()), string(stderr.Bytes())
+		outStr, errStr := stdout.String(), stderr.String()
 		if err != nil {
 			logger.Errorf("An error occured in the command: %v with string %v", err, errStr)
 			return "", fmt.Errorf("cmd: Run failed with %s", errStr)

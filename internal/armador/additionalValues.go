@@ -15,9 +15,6 @@ import (
 	"github.com/travelaudience/armador/internal/logger"
 )
 
-type ArmadorConfig struct {
-	AdditionalValues AdditionalValues
-}
 type AdditionalValues []AdditionalValue
 
 type AdditionalValue struct {

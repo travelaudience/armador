@@ -30,10 +30,10 @@ func Extract(filePath, extractPath, fileName string) error {
 		p := path.Join(extractPath, path.Dir(fileName), entry.Name)
 		if entry.Typeflag == tar.TypeReg {
 			ow, err := writeFile(p, os.FileMode(entry.Mode))
-			defer ow.Close()
 			if err != nil {
 				return err
 			}
+			defer ow.Close()
 			if _, err := io.Copy(ow, tarReader); err != nil {
 				return err
 			}

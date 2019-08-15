@@ -155,5 +155,4 @@ func createOrUpdate(projectDir, namespace string, dryRun, create bool, rawValues
 		return
 	}
 	logger.Infof("Creation is complete, enjoy using %s", namespace)
-	return
 }

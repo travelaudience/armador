@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.12 #
+    working_directory: /go/src/github.com/travelaudience/armador
+
+    steps:
+      - checkout
+
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - v1-pkg-cache
+
+      - run: go get honnef.co/go/tools/cmd/staticcheck
+      - run: go get golang.org/x/lint/golint
+
+      - run:
+          name: Fetch depedencies
+          command: go get
+      - run:
+          name: Vet
+          command: go vet ./...
+      - run:
+          name: Static check
+          command: staticcheck -unused.whole-program ./...
+
+      - run:
+          name: Tests
+          command: go test ./...
+
+      - run:
+          name: Build
+          command: go build -o $GOPATH/bin/armador
+
+      - save_cache: # Store cache in the /go/pkg directory
+          key: v1-pkg-cache
+          paths:
+            - "/go/pkg"
+
+      - store_artifacts:
+          path: $GOPATH/bin/
+          destination: armador-binary
