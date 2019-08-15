@@ -18,6 +18,12 @@ This diagram is an annotated version from the original app. https://github.com/d
 * db: As below, this is defined as a `prereqChart` in the global config.
 * result-app: Defined as a dependency in `vote/armador.yaml`.
 
+tl;dr: The files to that are needed to make this all work:
+
+* `example-app-charts/vote/armador.yaml`
+* `global-config.yaml`
+* `overrideValues.yaml`
+
 ### Running example
 
 To run this example:
