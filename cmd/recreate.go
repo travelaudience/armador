@@ -84,5 +84,4 @@ func recreate(namespace string, dryRun bool) {
 		return
 	}
 	logger.Infof("Re-creation is complete, enjoy using %s", namespace)
-	return
 }

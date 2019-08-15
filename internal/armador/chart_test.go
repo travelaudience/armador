@@ -6,17 +6,6 @@ import (
 )
 
 func TestChart_parseArmadorFile(t *testing.T) {
-	type fields struct {
-		Name               string
-		Repo               string
-		Version            string
-		Dependencies       []Chart
-		OverrideValueFiles []string
-		SetValues          []string
-		ChartPath          string
-		Packaged           bool
-		PathToChart        string
-	}
 	cases := []struct {
 		name     string
 		chart    Chart

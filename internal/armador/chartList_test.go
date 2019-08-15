@@ -109,8 +109,8 @@ func TestChartList_flattenInitialChartsMap(t *testing.T) {
 
 		{
 			name:     "empty",
-			input:    make(ChartList, 0),
-			expected: make(map[string]Chart, 0),
+			input:    make(ChartList),
+			expected: make(map[string]Chart),
 		},
 		{
 			name: "simple",
@@ -167,7 +167,7 @@ func TestChartList_processCharts(t *testing.T) {
 		Tmp:   commands.TmpDirs{Root: "tp/tmp/", Extracted: "tp/tmp/extracted", Hold: "tp/tmp/hold"},
 		Cache: commands.CacheDirs{Root: "tp/cache/", Charts: "tp/cache/charts"},
 	}
-	filterDuplicates := make(map[string]struct{}, 0)
+	filterDuplicates := make(map[string]struct{})
 	cmd := commands.CmdMock{}
 	tests := []struct {
 		name           string

@@ -22,7 +22,7 @@ func ClusterConnect(cmd commands.Command, clusterConfig ClusterConfig) error {
 	case "minikube":
 		return minikubeConnect(cmd, clusterConfig.Name)
 	default:
-		return fmt.Errorf("Cluster type '%s' is not supported", clusterType)
+		return fmt.Errorf("cluster type '%s' is not supported", clusterType)
 	}
 }
 
@@ -32,7 +32,7 @@ func gcloudConnect(cmd commands.Command, zone, project, cluster string) error {
 		"--zone", zone,
 		"--project", project, cluster)
 	if err != nil {
-		return fmt.Errorf("Could not complete GcloudConnectCmd: %s", err)
+		return fmt.Errorf("could not complete GcloudConnectCmd: %s", err)
 	}
 	return nil
 }
@@ -40,7 +40,7 @@ func gcloudConnect(cmd commands.Command, zone, project, cluster string) error {
 func minikubeConnect(cmd commands.Command, contextName string) error {
 	_, err := cmd.Exec("minikube-connect", "kubectl", "config", "use-context", contextName)
 	if err != nil {
-		return fmt.Errorf("Could not not connect to %s: %s", contextName, err)
+		return fmt.Errorf("could not not connect to %s: %s", contextName, err)
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ func GetClusterConfig() (retValues ClusterConfig, err error) {
 			invalid += "project "
 		}
 		if len(invalid) > 0 {
-			return retValues, fmt.Errorf("Google cluster configuration is missing: %s", invalid)
+			return retValues, fmt.Errorf("google cluster configuration is missing: %s", invalid)
 		}
 		retValues.Name = n
 		retValues.Zone = z
@@ -91,12 +91,12 @@ func GetClusterConfig() (retValues ClusterConfig, err error) {
 			invalid += "contextName "
 		}
 		if len(invalid) > 0 {
-			return retValues, fmt.Errorf("Minikube configuration is missing: %s", invalid)
+			return retValues, fmt.Errorf("minikube configuration is missing: %s", invalid)
 		}
 		retValues.Name = n
 		return retValues, err
 	}
 
 	// If it's here, then the retValues haven't been set and there is a configuration problem
-	return retValues, fmt.Errorf("Cluster configuration is not available: %v", cluster)
+	return retValues, fmt.Errorf("cluster configuration is not available: %v", cluster)
 }

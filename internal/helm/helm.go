@@ -86,17 +86,17 @@ func Fetch(cmd commands.Command, chart, repo, version, holdDir, extractDir, cach
 	dir := filepath.Join(cacheDir, chart, version)
 	err = os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("Failed to create %s dir: %s", dir, err)
+		return "", fmt.Errorf("failed to create %s dir: %s", dir, err)
 	}
 	// move the hold file to the cache dir
 	err = os.Rename(filepath.Join(holdDir, tarFileName), filepath.Join(dir, tarFileName))
 	if err != nil {
-		return "", fmt.Errorf("Failed to move tar file %s to dir: %s: %s", tarFileName, dir, err)
+		return "", fmt.Errorf("failed to move tar file %s to dir: %s: %s", tarFileName, dir, err)
 	}
 	// extract the cached tar file to the tmp/extracted dir
 	err = commands.Extract(dir, extractDir, tarFileName)
 	if err != nil {
-		return "", fmt.Errorf("Extraction of %s failed: %s", chart, err)
+		return "", fmt.Errorf("extraction of %s failed: %s", chart, err)
 	}
 	return filepath.Join(extractDir, chart), nil
 }
@@ -170,7 +170,7 @@ func CheckPlugin(cmd commands.Command, pluginName string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Helm plugin: %s not installed. /nTry `armardor helm check` to compare versions", pluginName)
+	return fmt.Errorf("helm plugin: %s not installed. /nTry `armardor helm check` to compare versions", pluginName)
 }
 
 func DepUpdate(cmd commands.Command, chartPath string) ([]string, error) {

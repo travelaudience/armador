@@ -23,7 +23,7 @@ const (
 func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Dirs, dryRun bool, rawValues []string) error {
 	logger := logger.GetLogger()
 	var wg sync.WaitGroup
-	charts := make(ChartList, 0)
+	charts := make(ChartList)
 
 	additionalValues, err := getAdditionalValues()
 	if err != nil {
@@ -98,7 +98,7 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 
 	logger.Debugf("Charts to analyze: \n\t %s", charts)
 
-	filterDuplicates := make(map[string]struct{}, 0)
+	filterDuplicates := make(map[string]struct{})
 	err = charts.processCharts(cmd, charts.flattenInitialChartsMap(), dirs, filterDuplicates)
 	if err != nil {
 		return err
