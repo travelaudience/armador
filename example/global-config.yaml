@@ -1,0 +1,13 @@
+prereqCharts:
+  - postgresql:
+      repo: stable
+  - result-app:
+      packaged: false
+      repo: https://github.com/travelaudience/armador.git
+      pathToChart: example/example-app-charts/result
+
+cluster:
+  google:
+    name: clusterName
+    zone: europe-west3-b
+    project: gcp-project
