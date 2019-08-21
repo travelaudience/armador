@@ -1,7 +1,7 @@
 prereqCharts:
   - postgresql:
       repo: stable
-  - result-app:
+  - result:
       packaged: false
       repo: https://github.com/travelaudience/armador.git
       pathToChart: example/example-app-charts/result
