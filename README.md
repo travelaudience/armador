@@ -8,7 +8,7 @@ The best analogy for what Armador provides would be to compare it to Docker Comp
 
 ### Why not use an "umbrella" helm chart?
 
-The limitation with umbrella charts is that the individual services don't have their own lifecycle. The other problem is that the developer of one service, doesn't know all the other dependecies another service has. So they are not able to build their own umberlla charts on demand.
+The limitation with umbrella charts is that the individual services don't have their own lifecycle. The other problem is that the developer of one service doesn't know all the other dependencies another service has. So they are not able to build their own umbrella charts on demand.
 
 ## Gettings started
 
