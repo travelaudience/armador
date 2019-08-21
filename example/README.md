@@ -29,5 +29,4 @@ tl;dr: The files to that are needed to make this all work:
 To run this example:
 
 * modify `global-config.yaml` with valid cluster details
-* `cd example/`
-* `armador create ex-vote --config global-config.yaml -p example-app-charts/vote`
+* `armador create ex-vote --config example/global-config.yaml -p example/example-app-charts/vote`
