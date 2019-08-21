@@ -2,8 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.12 #
-
+      - image: circleci/golang:1.12
+    working_directory: /tmp
     steps:
       - checkout
 
@@ -27,7 +27,7 @@ jobs:
 
       - run:
           name: Build
-          command: go build -o /bin/armador
+          command: go build -o /tmp/bin/armador
 
       - save_cache: # Store cache in the /go/pkg directory
           key: v1-pkg-cache
@@ -35,5 +35,5 @@ jobs:
             - "/go/pkg"
 
       - store_artifacts:
-          path: /bin/
+          path: /tmp/bin/
           destination: armador-binary
