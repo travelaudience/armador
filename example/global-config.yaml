@@ -6,6 +6,11 @@ prereqCharts:
       repo: https://github.com/travelaudience/armador.git
       pathToChart: example/example-app-charts/result
 
+additionalValues:
+  - repo: https://github.com/travelaudience/armador.git
+    path:
+      - example/overrideValues.yaml
+
 cluster:
   google:
     name: clusterName
