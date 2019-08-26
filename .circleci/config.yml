@@ -2,9 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.12 #
-    working_directory: /go/src/github.com/travelaudience/armador
-
+      - image: circleci/golang:1.12
     steps:
       - checkout
 
@@ -16,9 +14,6 @@ jobs:
       - run: go get golang.org/x/lint/golint
 
       - run:
-          name: Fetch depedencies
-          command: go get
-      - run:
           name: Vet
           command: go vet ./...
       - run:
@@ -27,11 +22,11 @@ jobs:
 
       - run:
           name: Tests
-          command: go test ./...
+          command: go test -race -coverprofile=profile.out ./...
 
       - run:
           name: Build
-          command: go build -o $GOPATH/bin/armador
+          command: go build -o /tmp/bin/armador
 
       - save_cache: # Store cache in the /go/pkg directory
           key: v1-pkg-cache
@@ -39,5 +34,5 @@ jobs:
             - "/go/pkg"
 
       - store_artifacts:
-          path: $GOPATH/bin/
+          path: /tmp/bin/
           destination: armador-binary

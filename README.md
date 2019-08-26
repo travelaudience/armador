@@ -15,7 +15,6 @@ The limitation with umbrella charts is that the individual services don't have t
 **Building the code**
 
 ```
-go get ./...
 go build -o $GOPATH/bin/armador
 ```
 
