@@ -51,3 +51,9 @@ func ListEnvironments(cmd commands.Command) []string {
 	}
 	return namespaces
 }
+
+// SetContextNamespace triggers a command to set kubectl context to the new namespace
+func SetContextNamespace(cmd commands.Command, namespace string) error {
+	_, err := cmd.Exec("update-context", "kubectl", "config", "set-context", "--current", "--namespace", namespace)
+	return err
+}

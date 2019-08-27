@@ -155,4 +155,9 @@ func createOrUpdate(projectDir, namespace string, dryRun, create bool, rawValues
 		return
 	}
 	logger.Infof("Creation is complete, enjoy using %s", namespace)
+
+	err = cluster.SetContextNamespace(cmd, namespace)
+	if err != nil {
+		logger.Warn("Unable to set namespace in context.")
+	}
 }
