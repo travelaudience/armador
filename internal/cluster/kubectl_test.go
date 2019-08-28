@@ -143,3 +143,36 @@ test              Active    10d
 		})
 	}
 }
+
+func TestSetContextNamespace(t *testing.T) {
+	cases := []struct {
+		name      string
+		cmd       commands.Command
+		namespace string
+		wantErr   bool
+	}{
+		{
+			name:      "any-name",
+			cmd:       commands.CmdMock{CmdExecuted: "kubectl config set-context --current --namespace any-name", ReturnError: false},
+			namespace: "any-name",
+			wantErr:   false,
+		},
+		{
+			name:      "no-name",
+			cmd:       commands.CmdMock{CmdExecuted: "kubectl config set-context --current --namespace", ReturnError: true},
+			namespace: "",
+			wantErr:   true,
+		},
+	}
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			err := SetContextNamespace(tt.cmd, tt.namespace)
+			if err != nil && !tt.wantErr {
+				t.Errorf("%s test failed. \nGot: %v \nExpected: %v", tt.name, err, tt.wantErr)
+			}
+			if err == nil && tt.wantErr {
+				t.Errorf("%s test failed.\nExpected: %v but got no error", tt.name, tt.wantErr)
+			}
+		})
+	}
+}

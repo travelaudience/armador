@@ -154,6 +154,12 @@ func createOrUpdate(projectDir, namespace string, dryRun, create bool, rawValues
 		logger.Error(err)
 		return
 	}
+
+	err = cluster.SetContextNamespace(cmd, namespace)
+	if err != nil {
+		logger.Warn("Unable to set namespace in context.")
+	}
+
 	if dryRun {
 		logger.Infof("Dry-run is complete, this is what will be deployed.")
 	} else {
