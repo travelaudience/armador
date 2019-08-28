@@ -27,7 +27,7 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 
 	additionalValues, err := getAdditionalValues()
 	if err != nil {
-		logger.Warn(err)
+		logger.Debug(err)
 	}
 	preReqs, err := getPrereqCharts() // TODO: this needs to be swapped
 	if err != nil {
