@@ -71,16 +71,17 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		logger.GetLogger().Debug("Using config file: ", viper.ConfigFileUsed())
-	} else {
-		logger.GetLogger().Warn("No config file provided")
+	if err := viper.ReadInConfig(); err != nil {
+		logger.GetLogger().Errorf("Problem processing config file: %v", err)
+		os.Exit(3)
 	}
+	logger.GetLogger().Debug("Using config file: ", viper.ConfigFileUsed())
 
 	// After the config files are loaded, parse them into structs
 	cluster, err := cluster.GetClusterConfig()
 	if err != nil {
-		logger.GetLogger().Warn(err)
+		logger.GetLogger().Error(err)
+		os.Exit(3)
 	}
 	viper.Set("cluster", cluster)
 }

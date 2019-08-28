@@ -2,6 +2,7 @@ package armador
 
 import (
 	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 
 	additionalValues, err := getAdditionalValues()
 	if err != nil {
-		logger.Warn(err)
+		logger.Debug(err)
 	}
 	preReqs, err := getPrereqCharts() // TODO: this needs to be swapped
 	if err != nil {
@@ -68,7 +69,6 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 	}(cmd, additionalValues, dirs)
 
 	wg.Wait()
-
 	if armadorFileErr != nil {
 		return armadorFileErr
 	}
@@ -78,11 +78,11 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 
 	if len(armadorFiles) < 1 {
 		logger.Warnf(`There's no armador file available at: %s
-    Without an Armador file, it's unclear what values/dependencies to use.
-    Under most cases, if there is only one chart to install,
-    you should just execute 'helm install'.
-
-    If this is not the case than it's possibe the --projectDir (%s) may be wrong.`, projectDir, projectDir)
+		Without an Armador file, it's unclear what values/dependencies to use.
+		Under most cases, if there is only one chart to install,
+		you should just execute 'helm install'.
+		
+		If this is not the case than it's possibe the --projectDir (%s) may be wrong.`, projectDir, projectDir)
 		return nil
 	}
 
@@ -118,6 +118,7 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 		}
 	}
 
+	os.Exit(3)
 	//  run helm installs (in parallel)
 	wg.Add(len(charts))
 	for _, name := range chartNames {
