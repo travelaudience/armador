@@ -32,7 +32,7 @@ var createCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		dryRun, err := cmd.Flags().GetBool("dryRun")
+		dryRun, err := cmd.Flags().GetBool("dry-run")
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ var updateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		dryRun, err := cmd.Flags().GetBool("dryRun")
+		dryRun, err := cmd.Flags().GetBool("dry-run")
 		if err != nil {
 			return err
 		}
@@ -87,12 +87,12 @@ var updateCmd = &cobra.Command{
 
 func init() {
 	createCmd.Flags().StringP("projectDir", "p", ".", "path to the project that will be installed")
-	createCmd.Flags().BoolP("dryRun", "d", false, "show the changes helm will apply without making them")
+	createCmd.Flags().BoolP("dry-run", "d", false, "show the changes helm will apply without making them")
 	createCmd.Flags().StringArray("set", []string{}, "set values on the command line (can specify multiple: --set app.key=val1 --set app2.key.v2=val2)")
 	rootCmd.AddCommand(createCmd)
 	// Set the same for update as well
 	updateCmd.Flags().StringP("projectDir", "p", ".", "path to the project that will be installed")
-	updateCmd.Flags().BoolP("dryRun", "d", false, "show the changes helm will apply without making them")
+	updateCmd.Flags().BoolP("dry-run", "d", false, "show the changes helm will apply without making them")
 	updateCmd.Flags().StringArray("set", []string{}, "set values on the command line (can specify multiple: --set app.key=val1 --set app2.key.v2=val2)")
 	rootCmd.AddCommand(updateCmd)
 }
@@ -141,7 +141,7 @@ func createOrUpdate(projectDir, namespace string, dryRun, create bool, rawValues
 		logger.Warnf("%s does not exist. Use `armador create` instead.", namespace)
 		return
 	}
-	if create {
+	if create && !dryRun {
 		_, err = cluster.CreateNamespace(cmd, namespace)
 		if err != nil {
 			logger.Error(err)
@@ -160,4 +160,10 @@ func createOrUpdate(projectDir, namespace string, dryRun, create bool, rawValues
 	if err != nil {
 		logger.Warn("Unable to set namespace in context.")
 	}
+	if dryRun {
+		logger.Infof("Dry-run is complete, this is what will be deployed.")
+	} else {
+		logger.Infof("Creation is complete, enjoy using %s", namespace)
+	}
+
 }
