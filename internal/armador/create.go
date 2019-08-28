@@ -2,7 +2,6 @@ package armador
 
 import (
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -118,7 +117,6 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 		}
 	}
 
-	os.Exit(3)
 	//  run helm installs (in parallel)
 	wg.Add(len(charts))
 	for _, name := range chartNames {
