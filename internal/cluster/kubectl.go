@@ -45,8 +45,8 @@ func ListEnvironments(cmd commands.Command) []string {
 	for _, res := range allNamespaces {
 		ns := strings.Fields(res)[0]
 		// TODO: CONFIG: create global settings for default namespaces
-		if ns != "kube-system" && ns != "kube-public" && ns != "default" && ns != "NAME" && ns != "core" {
-			namespaces = append(namespaces, ns)
+		if ns != "kube-system" && ns != "kube-public" && ns != "default" && ns != "core" {
+			namespaces = append(namespaces, strings.Fields(res)[2]+"\t"+ns)
 		}
 	}
 	return namespaces
