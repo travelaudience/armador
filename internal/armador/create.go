@@ -78,11 +78,11 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 
 	if len(armadorFiles) < 1 {
 		logger.Warnf(`There's no armador file available at: %s
-  Without an Armador file, it's unclear what values/dependencies to use.
-  Under most cases, if there is only one chart to install,
-  you should just execute 'helm install'.
+    Without an Armador file, it's unclear what values/dependencies to use.
+    Under most cases, if there is only one chart to install,
+    you should just execute 'helm install'.
 
-  If this is not the case than it's possibe the --projectDir (%s) may be wrong.`, projectDir, projectDir)
+    If this is not the case than it's possibe the --projectDir (%s) may be wrong.`, projectDir, projectDir)
 		return nil
 	}
 
