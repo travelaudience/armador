@@ -110,7 +110,6 @@ func (chart *Chart) unmarshalArmadorConfig(vip *viper.Viper) {
 	}
 	chart.OverrideValueFiles = ovf
 
-	// TODO: add ability for non-pacakaged charts to be dependencies (ie: use same logic as in `getPrereqCharts()`)
 	deps, ok := vip.Get("dependencies").([]interface{})
 	if !ok {
 		chart.Dependencies = []Chart{}
