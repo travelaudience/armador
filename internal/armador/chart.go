@@ -59,6 +59,43 @@ func (chart *Chart) processGit(cmd commands.Command, dirs commands.Dirs) error {
 	return nil
 }
 
+func digestFields(fields map[interface{}]interface{}) (retChart Chart) {
+	retChart = Chart{}
+	for name, vals := range fields {
+		retChart.Name = name.(string)
+		vals := vals.(map[interface{}]interface{})
+		r, ok := vals["repo"].(string)
+		if ok {
+			retChart.Repo = r
+		}
+		v, ok := vals["version"].(string)
+		if ok {
+			retChart.Version = v
+		}
+		c, ok := vals["pathToChart"].(string)
+		if ok {
+			retChart.PathToChart = c
+		}
+
+		p, ok := vals["packaged"].(bool)
+		if ok {
+			retChart.Packaged = p
+		} else {
+			retChart.Packaged = true
+		}
+
+		var files []string
+		overrideFiles, ok := vals["overrideValueFiles"].([]interface{})
+		if ok {
+			for _, f := range overrideFiles {
+				files = append(files, f.(string))
+			}
+		}
+		retChart.OverrideValueFiles = files
+	}
+	return retChart
+}
+
 func (chart *Chart) unmarshalArmadorConfig(vip *viper.Viper) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -79,23 +116,8 @@ func (chart *Chart) unmarshalArmadorConfig(vip *viper.Viper) {
 		chart.Dependencies = []Chart{}
 	}
 	for _, d := range deps {
-		dep, ok := d.(map[interface{}]interface{})
-		if !ok {
-			continue
-		}
-		for k, v := range dep {
-			name := k.(string)
-			extra := v.(map[interface{}]interface{})
-			r, ok := extra["repo"].(string)
-			if !ok {
-				r = ""
-			}
-			v, ok := extra["version"].(string)
-			if !ok {
-				v = ""
-			}
-			chart.Dependencies = append(chart.Dependencies, Chart{Name: name, Repo: r, Version: v})
-		}
+		dep, _ := d.(map[interface{}]interface{})
+		chart.Dependencies = append(chart.Dependencies, digestFields(dep))
 	}
 }
 
@@ -109,45 +131,8 @@ func getPrereqCharts() (retCharts []Chart, err error) {
 
 	prereqList := viper.Get("prereqCharts").([]interface{})
 	for _, chart := range prereqList {
-		for name, vals := range chart.(map[interface{}]interface{}) {
-			vals := vals.(map[interface{}]interface{})
-			nextChart := Chart{
-				Name: name.(string),
-			}
-
-			r, ok := vals["repo"].(string)
-			if ok {
-				nextChart.Repo = r
-			}
-
-			v, ok := vals["version"].(string)
-			if ok {
-				nextChart.Version = v
-			}
-
-			c, ok := vals["pathToChart"].(string)
-			if ok {
-				nextChart.PathToChart = c
-			}
-
-			p, ok := vals["packaged"].(bool)
-			if ok {
-				nextChart.Packaged = p
-			} else {
-				nextChart.Packaged = true
-			}
-
-			files := []string{}
-			overrideFiles, ok := vals["overrideValueFiles"].([]interface{})
-			if ok {
-				for _, f := range overrideFiles {
-					files = append(files, f.(string))
-				}
-			}
-			nextChart.OverrideValueFiles = files
-
-			retCharts = append(retCharts, nextChart)
-		}
+		preq, _ := chart.(map[interface{}]interface{})
+		retCharts = append(retCharts, digestFields(preq))
 	}
 
 	return retCharts, err
