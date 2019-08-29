@@ -132,7 +132,7 @@ default           Active    2d
 kube-system       Active    5d
 test              Active    10d
 `},
-			want: []string{"any-name", "test"},
+			want: []string{"AGE" + "\t" + "NAME", "5d" + "\t" + "any-name", "10d" + "\t" + "test"},
 		},
 	}
 	for _, tt := range cases {
