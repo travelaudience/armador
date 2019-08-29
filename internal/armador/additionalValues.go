@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/ghodss/yaml"
 
 	"github.com/spf13/viper"
 	"github.com/travelaudience/armador/internal/commands"
@@ -85,19 +85,16 @@ func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command
 
 func parseOverrideFile(overrideFile, overridesDir string) error {
 	logger := logger.GetLogger()
-	configName := strings.TrimSuffix(filepath.Base(overrideFile), filepath.Ext(overrideFile))
-	configPath := strings.TrimSuffix(overrideFile, filepath.Base(overrideFile))
-	logger.Debugf("Parsing override file %s in path %s", configName, configPath)
-	vip, err := ReadFileToViper(configName, configPath) // TODO: here the configName is different, it's called `values`
+	valuesMap, err := readValuesFile(overrideFile)
 	if err != nil {
 		return err
 	}
-	if vip == nil {
-		logger.Warnf("Override file %s not found in path %s", configName, configPath)
+	if valuesMap == nil {
+		logger.Warnf("Override file not found in path: %s", overrideFile)
 		return nil
 	}
-	// for each chart in vip, create a new file with the contents
-	for key, val := range vip.AllSettings() {
+	// for each chart, create a new file with the contents
+	for key, val := range valuesMap {
 		cont, err := yaml.Marshal(val)
 		if err != nil {
 			logger.Warnf("unable to marshal %s config to YAML: %v", key, err)
@@ -113,19 +110,22 @@ func parseOverrideFile(overrideFile, overridesDir string) error {
 	return nil
 }
 
-func ReadFileToViper(configName, configPath string) (*viper.Viper, error) {
-	new := viper.New()
-	new.SetConfigName(configName) // name of config file (without extension)
-	new.AddConfigPath(configPath) // path to look for the config file in
-	err := new.ReadInConfig()     // Find and read the config file
+func readValuesFile(filepath string) (map[string]interface{}, error) {
+	// check if file exists
+	info, err := os.Stat(filepath)
+	if err != nil || info.IsDir() {
+		// no file to read
+		return nil, nil
+	}
+
+	valuesMap := map[string]interface{}{}
+	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			logger.GetLogger().Debug(err) // expected file not found
-			return nil, nil
-		}
-		// Other errors reading the config file should be addressed
-		logger.GetLogger().Warnf("Problem with config file at %s", configPath)
+		logger.GetLogger().Infof("Couldn't read the file %s: %s", filepath, err)
 		return nil, err
 	}
-	return new, nil
+	if err := yaml.Unmarshal(bytes, &valuesMap); err != nil {
+		return nil, fmt.Errorf("Failed to parse %s: %s", filepath, err)
+	}
+	return valuesMap, nil
 }
