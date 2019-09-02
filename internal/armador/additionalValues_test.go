@@ -1,10 +1,57 @@
 package armador
 
 import (
+	"os"
 	"testing"
 
 	"github.com/go-test/deep"
 )
+
+func Test_saveValuesToFile(t *testing.T) {
+	cases := []struct {
+		name          string
+		values        map[string]interface{}
+		destDir       string
+		expectedFiles []string
+		wantErr       bool
+	}{
+		{
+			name: "two-charts",
+			values: map[string]interface{}{
+				"oneChart": map[string]interface{}{
+					"values": "set",
+				},
+				"twoChart": map[string]interface{}{
+					"OtherValues": true,
+				},
+			},
+			destDir:       "../testData/extracted/savedVals/",
+			expectedFiles: []string{"oneChart.yaml", "twoChart.yaml"},
+			wantErr:       false,
+		},
+	}
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			// Setup, make sure the dest directory exists
+			err := os.MkdirAll(tt.destDir, os.ModePerm)
+			if err != nil {
+				t.Errorf("%s had a problem in setting up the test: %s", tt.name, err)
+			}
+			// test saveValuesToFile()
+			err = saveValuesToFile(tt.values, tt.destDir)
+			if err != nil && !tt.wantErr {
+				t.Errorf("unexpected test error for %s: %v", tt.name, err)
+			} else if err == nil && tt.wantErr {
+				t.Errorf("expected error, no error received for %s", tt.name)
+			}
+			for _, expectedFile := range tt.expectedFiles {
+				if _, err := os.Stat(tt.destDir + expectedFile); os.IsNotExist(err) {
+					t.Errorf("Test %s failed, file %s not found in %s", tt.name, expectedFile, tt.destDir)
+				}
+			}
+		})
+	}
+}
 
 func Test_readValuesFile(t *testing.T) {
 	cases := []struct {
