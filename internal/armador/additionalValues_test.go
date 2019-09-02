@@ -1,9 +1,12 @@
 package armador
 
 import (
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/ghodss/yaml"
 	"github.com/go-test/deep"
 )
 
@@ -11,7 +14,6 @@ func Test_saveValuesToFile(t *testing.T) {
 	cases := []struct {
 		name          string
 		values        map[string]interface{}
-		destDir       string
 		expectedFiles []string
 		wantErr       bool
 	}{
@@ -25,7 +27,6 @@ func Test_saveValuesToFile(t *testing.T) {
 					"OtherValues": true,
 				},
 			},
-			destDir:       "../testData/extracted/savedVals/",
 			expectedFiles: []string{"oneChart.yaml", "twoChart.yaml"},
 			wantErr:       false,
 		},
@@ -33,22 +34,34 @@ func Test_saveValuesToFile(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup, make sure the dest directory exists
-			err := os.MkdirAll(tt.destDir, os.ModePerm)
+			dir, err := ioutil.TempDir("", "armadorTest")
 			if err != nil {
-				t.Errorf("%s had a problem in setting up the test: %s", tt.name, err)
+				t.Errorf("Setup for %s failed: %s", tt.name, err)
 			}
+			defer os.RemoveAll(dir) // clean up directory
+
 			// test saveValuesToFile()
-			err = saveValuesToFile(tt.values, tt.destDir)
+			err = saveValuesToFile(tt.values, dir)
+			// check the error response is as expected
 			if err != nil && !tt.wantErr {
 				t.Errorf("unexpected test error for %s: %v", tt.name, err)
 			} else if err == nil && tt.wantErr {
 				t.Errorf("expected error, no error received for %s", tt.name)
 			}
-			for _, expectedFile := range tt.expectedFiles {
-				if _, err := os.Stat(tt.destDir + expectedFile); os.IsNotExist(err) {
-					t.Errorf("Test %s failed, file %s not found in %s", tt.name, expectedFile, tt.destDir)
+			// for each value, check that a file exists, and the content is expected
+			for key, val := range tt.values {
+				newFile := key + ".yaml"
+				savedValues := map[string]interface{}{}
+				if _, err := os.Stat(filepath.Join(dir, newFile)); os.IsNotExist(err) {
+					t.Errorf("Test %s failed, file %s not found in %s", tt.name, newFile, dir)
+				}
+				gotBytes, _ := ioutil.ReadFile(filepath.Join(dir, newFile))
+				yaml.Unmarshal(gotBytes, &savedValues)
+				if diff := deep.Equal(savedValues, val); diff != nil {
+					t.Errorf("%s test failed:\nDiff: %s \nGot: %v \nExpected: %v", tt.name, diff, savedValues, val)
 				}
 			}
+
 		})
 	}
 }
