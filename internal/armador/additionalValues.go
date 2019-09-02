@@ -70,7 +70,7 @@ func UnmarshalCache(vip *viper.Viper) (returnConf map[string]string, err error) 
 	return returnConf, err
 }
 
-func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command, overridesDir string) {
+func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command, overridesDir string) error {
 	for i, vals := range valSettings {
 		clonePath := filepath.Join(overridesDir, strconv.Itoa(i))
 		err := commands.GitGet(cmd, vals.Repo, clonePath)
@@ -78,32 +78,35 @@ func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command
 			logger.GetLogger().Warnf("Unable to obtain override files: %s", err)
 		}
 		for _, v := range vals.Path {
-			parseOverrideFile(filepath.Join(clonePath, v), overridesDir)
+			overrideFile := filepath.Join(clonePath, v)
+			valuesMap, err := readValuesFile(overrideFile)
+			if err != nil {
+				return err
+			}
+			if valuesMap == nil {
+				logger.GetLogger().Warnf("Override file not found in path: %s", overrideFile)
+				continue
+			}
+			err = saveValuesToFile(valuesMap, overridesDir)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-func parseOverrideFile(overrideFile, overridesDir string) error {
+//for each chart/top level key in the values file, create a new file with the chart contents
+func saveValuesToFile(valuesMap map[string]interface{}, overridesDir string) error {
 	logger := logger.GetLogger()
-	valuesMap, err := readValuesFile(overrideFile)
-	if err != nil {
-		return err
-	}
-	if valuesMap == nil {
-		logger.Warnf("Override file not found in path: %s", overrideFile)
-		return nil
-	}
-	// for each chart, create a new file with the contents
 	for key, val := range valuesMap {
 		cont, err := yaml.Marshal(val)
 		if err != nil {
-			logger.Warnf("unable to marshal %s config to YAML: %v", key, err)
-			continue
+			return fmt.Errorf("unable to marshal %s config to YAML: %v", key, err)
 		}
 		err = ioutil.WriteFile(filepath.Join(overridesDir, key+".yaml"), cont, 0644)
 		if err != nil {
-			logger.Warnf("unable to save %s config to YAML: %v", key, err)
-			continue
+			return fmt.Errorf("unable to save %s config to YAML: %v", key, err)
 		}
 		logger.Debugf("Saved %s override config to path %s", key, overridesDir)
 	}
