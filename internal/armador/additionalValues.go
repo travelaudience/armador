@@ -128,7 +128,7 @@ func readValuesFile(filepath string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	if err := yaml.Unmarshal(bytes, &valuesMap); err != nil {
-		return nil, fmt.Errorf("Failed to parse %s: %s", filepath, err)
+		return nil, fmt.Errorf("failed to parse %s: %s", filepath, err)
 	}
 	return valuesMap, nil
 }
