@@ -127,6 +127,10 @@ func readValuesFile(filepath string) (map[string]interface{}, error) {
 		logger.GetLogger().Infof("Couldn't read the file %s: %s", filepath, err)
 		return nil, err
 	}
+	if len(bytes) < 1 {
+		// different envs handle empty files differently, so keep response consistent
+		return valuesMap, nil
+	}
 	if err := yaml.Unmarshal(bytes, &valuesMap); err != nil {
 		return nil, fmt.Errorf("failed to parse %s: %s", filepath, err)
 	}
