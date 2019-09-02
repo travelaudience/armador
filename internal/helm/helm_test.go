@@ -81,10 +81,10 @@ func TestDiff(t *testing.T) {
 			cmd:            commands.CmdMock{},
 			chartPath:      "example",
 			namespace:      "test",
-			overridePath:   "../testData",
+			overridePath:   "../testData/overrideFiles",
 			overrides:      []string{"other-file"},
 			setValues:      []string{"example=test"},
-			expectedResult: "Dir: example, Cmd: helm diff upgrade with-overrides-test . --allow-unreleased -f other-file -f ../testData/with-overrides.yaml --set example=test",
+			expectedResult: "Dir: example, Cmd: helm diff upgrade with-overrides-test . --allow-unreleased -f other-file -f ../testData/overrideFiles/with-overrides.yaml --set example=test",
 			wantErr:        false,
 		},
 	}
