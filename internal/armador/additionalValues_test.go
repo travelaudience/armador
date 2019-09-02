@@ -15,7 +15,7 @@ func Test_readValuesFile(t *testing.T) {
 	}{
 		{
 			name:     "empty-file",
-			filepath: "../testData/with-overrides.yaml",
+			filepath: "../testData/overrideFiles/with-overrides.yaml",
 			expected: map[string]interface{}{},
 			wantErr:  false,
 		},
@@ -58,7 +58,7 @@ func Test_readValuesFile(t *testing.T) {
 				t.Errorf("expected error, no error received for %s", tt.name)
 			}
 			if diff := deep.Equal(got, tt.expected); diff != nil {
-				t.Errorf("%s test failed:\n %s \nGot: %v \nExpected: %v", tt.name, diff, got, tt.expected)
+				t.Errorf("%s test failed:\nDiff: %s \nGot: %v \nExpected: %v", tt.name, diff, got, tt.expected)
 			}
 		})
 	}

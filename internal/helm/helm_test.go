@@ -31,10 +31,10 @@ func TestInstall(t *testing.T) {
 			cmd:            commands.CmdMock{},
 			chartPath:      "example",
 			namespace:      "test",
-			overridePath:   "../testData",
+			overridePath:   "../testData/overrideFiles",
 			overrides:      []string{"other-file"},
 			setValues:      []string{"example=test"},
-			expectedResult: "Dir: example, Cmd: helm upgrade --install with-overrides-test . --namespace test -f other-file -f ../testData/with-overrides.yaml --set example=test",
+			expectedResult: "Dir: example, Cmd: helm upgrade --install with-overrides-test . --namespace test -f other-file -f ../testData/overrideFiles/with-overrides.yaml --set example=test",
 			wantErr:        false,
 		},
 	}
