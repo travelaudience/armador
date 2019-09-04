@@ -25,7 +25,7 @@ type Chart struct {
 
 func (chart *Chart) parseArmadorFile() error {
 	// configName := strings.TrimSuffix(armadorFile, ".yaml")
-	vip, err := ReadFileToViper("armador", chart.ChartPath) // TODO: CONFIG: the config name should be set somehow
+	vip, err := readFileToViper("armador", chart.ChartPath) // TODO: CONFIG: the config name should be set somehow
 	if err != nil {
 		return err
 	}
@@ -94,6 +94,22 @@ func digestFields(fields map[interface{}]interface{}) (retChart Chart) {
 		retChart.OverrideValueFiles = files
 	}
 	return retChart
+}
+func readFileToViper(configName, configPath string) (*viper.Viper, error) {
+	new := viper.New()
+	new.SetConfigName(configName) // name of config file (without extension)
+	new.AddConfigPath(configPath) // path to look for the config file in
+	err := new.ReadInConfig()     // Find and read the config file
+	if err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			logger.GetLogger().Debug(err) // expected file not found
+			return nil, nil
+		}
+		// Other errors reading the config file should be addressed
+		logger.GetLogger().Warnf("Problem with config file at %s", configPath)
+		return nil, err
+	}
+	return new, nil
 }
 
 func (chart *Chart) unmarshalArmadorConfig(vip *viper.Viper) {

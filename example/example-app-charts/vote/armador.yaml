@@ -1,7 +1,9 @@
 dependencies:
   - redis:
       repo: stable
-  - worker:
+  - result:
       packaged: false
-      repo: https://github.com/codefresh-io/example-voting-app.git
-      pathToChart: example-voting-app/local-charts/worker
+      repo: https://github.com/travelaudience/armador.git
+      pathToChart: example/example-app-charts/result
+overrideValueFiles:
+  - values-example.yaml
