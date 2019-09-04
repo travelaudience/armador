@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/ghodss/yaml"
 
 	"github.com/spf13/viper"
 	"github.com/travelaudience/armador/internal/commands"
@@ -70,7 +70,7 @@ func UnmarshalCache(vip *viper.Viper) (returnConf map[string]string, err error) 
 	return returnConf, err
 }
 
-func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command, overridesDir string) {
+func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command, overridesDir string) error {
 	for i, vals := range valSettings {
 		clonePath := filepath.Join(overridesDir, strconv.Itoa(i))
 		err := commands.GitGet(cmd, vals.Repo, clonePath)
@@ -78,54 +78,61 @@ func (valSettings AdditionalValues) GetGlobalOverrideString(cmd commands.Command
 			logger.GetLogger().Warnf("Unable to obtain override files: %s", err)
 		}
 		for _, v := range vals.Path {
-			parseOverrideFile(filepath.Join(clonePath, v), overridesDir)
+			overrideFile := filepath.Join(clonePath, v)
+			valuesMap, err := readValuesFile(overrideFile)
+			if err != nil {
+				return err
+			}
+			if valuesMap == nil {
+				logger.GetLogger().Warnf("Override file not found in path: %s", overrideFile)
+				continue
+			}
+			err = saveValuesToFile(valuesMap, overridesDir)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-func parseOverrideFile(overrideFile, overridesDir string) error {
+//for each chart/top level key in the values file, create a new file with the chart contents
+func saveValuesToFile(valuesMap map[string]interface{}, overridesDir string) error {
 	logger := logger.GetLogger()
-	configName := strings.TrimSuffix(filepath.Base(overrideFile), filepath.Ext(overrideFile))
-	configPath := strings.TrimSuffix(overrideFile, filepath.Base(overrideFile))
-	logger.Debugf("Parsing override file %s in path %s", configName, configPath)
-	vip, err := ReadFileToViper(configName, configPath) // TODO: here the configName is different, it's called `values`
-	if err != nil {
-		return err
-	}
-	if vip == nil {
-		logger.Warnf("Override file %s not found in path %s", configName, configPath)
-		return nil
-	}
-	// for each chart in vip, create a new file with the contents
-	for key, val := range vip.AllSettings() {
+	for key, val := range valuesMap {
 		cont, err := yaml.Marshal(val)
 		if err != nil {
-			logger.Warnf("unable to marshal %s config to YAML: %v", key, err)
-			continue
+			return fmt.Errorf("unable to marshal %s config to YAML: %v", key, err)
 		}
 		err = ioutil.WriteFile(filepath.Join(overridesDir, key+".yaml"), cont, 0644)
 		if err != nil {
-			logger.Warnf("unable to save %s config to YAML: %v", key, err)
-			continue
+			return fmt.Errorf("unable to save %s config to YAML: %v", key, err)
 		}
 		logger.Debugf("Saved %s override config to path %s", key, overridesDir)
 	}
 	return nil
 }
 
-func ReadFileToViper(configName, configPath string) (*viper.Viper, error) {
-	new := viper.New()
-	new.SetConfigName(configName) // name of config file (without extension)
-	new.AddConfigPath(configPath) // path to look for the config file in
-	err := new.ReadInConfig()     // Find and read the config file
+func readValuesFile(filepath string) (map[string]interface{}, error) {
+	// check if file exists
+	info, err := os.Stat(filepath)
+	if err != nil || info.IsDir() {
+		// no file to read
+		return nil, nil
+	}
+
+	valuesMap := map[string]interface{}{}
+	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			logger.GetLogger().Debug(err) // expected file not found
-			return nil, nil
-		}
-		// Other errors reading the config file should be addressed
-		logger.GetLogger().Warnf("Problem with config file at %s", configPath)
+		logger.GetLogger().Infof("Couldn't read the file %s: %s", filepath, err)
 		return nil, err
 	}
-	return new, nil
+	if len(bytes) < 1 {
+		// different envs handle empty files differently, so keep response consistent
+		return valuesMap, nil
+	}
+	if err := yaml.Unmarshal(bytes, &valuesMap); err != nil {
+		return nil, fmt.Errorf("failed to parse %s: %s", filepath, err)
+	}
+	return valuesMap, nil
 }

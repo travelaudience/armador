@@ -35,7 +35,7 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 	}
 
 	var armadorFiles []string
-	var armadorFileErr, helmDiffErr error
+	var armadorFileErr, overrideFileErr, helmDiffErr error
 
 	// update Helm repos
 	wg.Add(1)
@@ -64,13 +64,16 @@ func Create(cmd commands.Command, projectDir, namespace string, dirs commands.Di
 	wg.Add(1)
 	go func(cmd commands.Command, valSettings AdditionalValues, dirs commands.Dirs) {
 		defer wg.Done()
-		valSettings.GetGlobalOverrideString(cmd, dirs.Tmp.Overrides)
+		overrideFileErr = valSettings.GetGlobalOverrideString(cmd, dirs.Tmp.Overrides)
 	}(cmd, additionalValues, dirs)
 
 	wg.Wait()
 
 	if armadorFileErr != nil {
 		return armadorFileErr
+	}
+	if overrideFileErr != nil {
+		return overrideFileErr
 	}
 	if helmDiffErr != nil {
 		return helmDiffErr
