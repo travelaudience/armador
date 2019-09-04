@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/go-test/deep"
 	"github.com/travelaudience/armador/internal/commands"
 )
 
@@ -167,7 +168,6 @@ func TestChartList_processCharts(t *testing.T) {
 		Tmp:   commands.TmpDirs{Root: "tp/tmp/", Extracted: "tp/tmp/extracted", Hold: "tp/tmp/hold"},
 		Cache: commands.CacheDirs{Root: "tp/cache/", Charts: "tp/cache/charts"},
 	}
-	filterDuplicates := make(map[string]struct{})
 	cmd := commands.CmdMock{}
 	tests := []struct {
 		name           string
@@ -206,9 +206,52 @@ func TestChartList_processCharts(t *testing.T) {
 					Dependencies: []Chart{Chart{Name: "first-dep", Repo: "github", PathToChart: "helm/first-dep"}},
 				},
 				"first-dep": Chart{Name: "first-dep", Repo: "github",
-					ChartPath: "tp/cache/charts/first-dep", Packaged: false,
+					ChartPath: "tp/cache/charts/first-dep/helm/first-dep", Packaged: false, PathToChart: "helm/first-dep",
 				},
 				"secondchart": Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "complex-dependecy",
+			charts: &ChartList{
+				"first-chart": Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "first-dep", Repo: "github", Version: "1.0.0", Packaged: false, PathToChart: "helm/first-dep"}}, Packaged: false, PathToChart: "helm/first-chart",
+				},
+				"secondchart": Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"},
+			},
+			expectedCharts: &ChartList{
+				"first-chart": Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "first-dep", Repo: "github", Version: "1.0.0", Packaged: false, PathToChart: "helm/first-dep"}}, Packaged: false, PathToChart: "helm/first-chart",
+				},
+				"first-dep": Chart{Name: "first-dep", Repo: "github", Version: "1.0.0",
+					ChartPath: "tp/cache/charts/first-dep/helm/first-dep", Packaged: false, PathToChart: "helm/first-dep",
+				},
+				"secondchart": Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "duplicate-dependecy",
+			charts: &ChartList{
+				"first-chart": Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"}},
+				},
+				"secondchart": Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+						Dependencies: []Chart{Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"}},
+					}},
+				},
+			},
+			expectedCharts: &ChartList{
+				"first-chart": Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"}},
+				},
+				"secondchart": Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData",
+					Dependencies: []Chart{Chart{Name: "first-chart", Repo: "stable", ChartPath: "../testData",
+						Dependencies: []Chart{Chart{Name: "secondchart", Repo: "stable", ChartPath: "../testData"}},
+					}},
+				},
 			},
 			wantErr: false,
 		},
@@ -216,14 +259,15 @@ func TestChartList_processCharts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			depList := tt.charts.flattenInitialChartsMap()
+			filterDuplicates := make(map[string]struct{})
 			err := tt.charts.processCharts(cmd, depList, dirs, filterDuplicates)
 			if err != nil && !tt.wantErr {
 				t.Errorf("unexpected test error for %s: %v", tt.name, err)
 			} else if err == nil && tt.wantErr {
 				t.Errorf("expected error, no error received for %s", tt.name)
 			}
-			if !reflect.DeepEqual(tt.expectedCharts, tt.charts) {
-				t.Errorf("%s test failed. \nGot: %v \nExpected: %v", tt.name, tt.charts, tt.expectedCharts)
+			if diff := deep.Equal(tt.charts, tt.expectedCharts); diff != nil {
+				t.Errorf("%s test failed.\nDiff: %s \nGot: %v \nExpected: %v", tt.name, diff, tt.charts, tt.expectedCharts)
 			}
 
 		})
