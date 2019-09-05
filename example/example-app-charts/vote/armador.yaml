@@ -1,9 +1,0 @@
-dependencies:
-  - redis:
-      repo: stable
-  - result:
-      packaged: false
-      repo: https://github.com/travelaudience/armador.git
-      pathToChart: example/example-app-charts/result
-overrideValueFiles:
-  - values-example.yaml

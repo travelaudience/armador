@@ -1,0 +1,23 @@
+# This service is added because the redis Helm chart (v9.1.0) doesn't allow for full override of the service name:
+# https://github.com/helm/charts/blob/master/stable/redis/templates/redis-master-svc.yaml#L5
+# and the voting app has this setting hardcoded:
+# https://github.com/dockersamples/example-voting-app/blob/master/worker/src/main/java/worker/Worker.java#L11
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+    chart: svc-fix
+spec:
+  type: ClusterIP
+  ports:
+  - name: redis
+    port: 6379
+    protocol: TCP
+    targetPort: redis
+  selector:
+    app: redis
+    release: redis-{{ .Release.Namespace }}
+    role: master
+  sessionAffinity: None

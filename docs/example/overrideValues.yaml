@@ -1,0 +1,16 @@
+worker:
+  image:
+    repository: docker/example-voting-app-worker
+    tag: latest
+  postgresql:
+    server: db
+  redis:
+    host: redis
+
+postgresql:
+  fullnameOverride: db
+  pgHbaConfiguration: host     all             all             0.0.0.0/0               trust
+  postgresqlDatabase: postgres
+
+redis:
+  usePassword: false

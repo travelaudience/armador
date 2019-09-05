@@ -1,0 +1,4 @@
+# these values can be configured to be installed with armador
+image:
+  repository: docker/example-voting-app-result
+  tag: latest

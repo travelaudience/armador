@@ -1,9 +1,0 @@
-dependencies:
-  - postgresql:
-      repo: stable
-  - worker:
-      packaged: false
-      repo: https://github.com/codefresh-io/example-voting-app.git
-      pathToChart: example-voting-app/local-charts/worker
-overrideValueFiles:
-  - values-example.yaml

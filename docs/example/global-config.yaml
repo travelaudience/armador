@@ -1,0 +1,14 @@
+prereqCharts:
+  - postgresql:
+      repo: stable
+
+additionalValues:
+  - repo: https://github.com/travelaudience/armador.git
+    path:
+      - docs/example/overrideValues.yaml
+
+cluster:
+  google:
+    name: clusterName
+    zone: europe-west3-b
+    project: gcp-project

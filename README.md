@@ -1,4 +1,6 @@
-# Armador
+[![Build Status](https://circleci.com/gh/travelaudience/armador.svg?style=svg)](https://circleci.com/gh/travelaudience/armador)
+
+![Armador Logo](./docs/armador-logo.png)
 
 A tool for creating ephemeral test environments in Kubernetes.
 
