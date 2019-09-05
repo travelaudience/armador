@@ -242,6 +242,7 @@ func TestChartList_processCharts(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			// TODO: Some of these charts should be changed to `packaged: true` once this will be fixed: https://github.com/travelaudience/armador/issues/19
 			name: "duplicate-dependecy",
 			charts: &ChartList{
 				"first-chart": Chart{
