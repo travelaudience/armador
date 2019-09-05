@@ -52,8 +52,8 @@ func (charts *ChartList) processCharts(cmd commands.Command, depList map[string]
 		if _, ok := filterDuplicates[n]; ok {
 			continue
 		}
-
 		chart := (*charts)[n]
+
 		// sync chart values with dependency info
 		if dep.Name != "" && chart.Name == "" {
 			chart.Name = dep.Name
@@ -62,11 +62,10 @@ func (charts *ChartList) processCharts(cmd commands.Command, depList map[string]
 			if dep.Repo != "" {
 				chart.Repo = dep.Repo
 			}
-			chart.Packaged = true
-			if !dep.Packaged && dep.Repo != "" && dep.PathToChart != "" {
-				chart.Packaged = false
-			}
+			chart.Packaged = dep.Packaged
+			chart.PathToChart = dep.PathToChart
 		}
+
 		if chart.ChartPath == "" {
 			if chart.Packaged {
 				chart.processHelm(cmd, dirs)
