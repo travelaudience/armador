@@ -37,9 +37,9 @@ cluster:                        # [required] The configuration for what k8s clus
 The individual `armador.yaml` (in each chart).
 
 ```yaml
-dependencies:                   # [optional] A list of Helm charts that this application requires to be "functional". Follows the same structure as `prereqCharts` in the global config (see above).
-  - chartName:
+dependencies:                   # [optional] A list of Helm charts that this application requires to be "functional".
+  - chartName:                  # These follow the same structure as `prereqCharts` in the global config (see above).
       repo: stable
-overrideValueFiles:             # [optional] A list of files that will override values.yaml for this app. Relative to the path of the chart.
+overrideValueFiles:             # [optional] A list of files that will override values.yaml for THIS app. Relative to the path of the chart.
   - values-dev.yaml
 ```
