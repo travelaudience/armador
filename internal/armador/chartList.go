@@ -53,6 +53,7 @@ func (charts *ChartList) processCharts(cmd commands.Command, depList map[string]
 			continue
 		}
 		chart := (*charts)[n]
+
 		// sync chart values with dependency info
 		if dep.Name != "" && chart.Name == "" {
 			chart.Name = dep.Name

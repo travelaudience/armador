@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/go-test/deep"
-	"github.com/travelaudience/armador/internal/logger"
 )
 
 func TestChart_parseArmadorFile(t *testing.T) {
@@ -49,9 +48,8 @@ func TestChart_parseArmadorFile(t *testing.T) {
 			} else if err == nil && tt.wantErr {
 				t.Errorf("expected error, no error received for %s", tt.name)
 			}
-			if len(deep.Equal(tt.chart, tt.expected)) > 0 {
-				logger.GetLogger().Warnf("Diff %v", deep.Equal(tt.chart, tt.expected))
-				t.Errorf("%s test failed. \nGot: \n%++v \nExpected: \n%++v", tt.name, tt.chart, tt.expected)
+			if diff := deep.Equal(tt.chart, tt.expected); diff != nil {
+				t.Errorf("%s test failed.\nDiff: %s \nGot: \n%++v \nExpected: \n%++v", tt.name, diff, tt.chart, tt.expected)
 			}
 		})
 	}
