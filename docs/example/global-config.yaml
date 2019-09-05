@@ -5,7 +5,7 @@ prereqCharts:
 additionalValues:
   - repo: https://github.com/travelaudience/armador.git
     path:
-      - example/overrideValues.yaml
+      - docs/example/overrideValues.yaml
 
 cluster:
   google:
